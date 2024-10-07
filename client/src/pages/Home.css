@@ -1,0 +1,11 @@
+/* Home.css */
+.jumbotron {
+    color: rgb(58, 56, 204);
+    background-color: #00A8EA; /* Optional: Dark background for better contrast */
+  }
+  
+  .custom-btn {
+    background-color: #00A8EA; /* Optional: Customize button color */
+    color: #f5fffa(0, 71%, 57%); /* Ensure button text color is white */
+  }
+  
