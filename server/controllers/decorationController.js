@@ -63,4 +63,20 @@ const getAllDecorations_user = async (req, res) => {
 };
 
 
-module.exports = { addDecorationTeam, getAllDecorations,getAllDecorations_user };
+// Delete a decoration team by ID
+const deleteDecorationTeam = async (req, res) => {
+  try {
+    const teamId = req.params.id;
+    const deletedTeam = await Decoration.findByIdAndDelete(teamId);
+    
+    if (!deletedTeam) {
+      return res.status(404).json({ message: 'Decoration team not found' });
+    }
+    
+    res.status(200).json({ message: 'Decoration team deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting decoration team', error });
+  }
+};
+
+module.exports = { addDecorationTeam, getAllDecorations,getAllDecorations_user,deleteDecorationTeam };

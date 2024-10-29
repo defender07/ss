@@ -57,4 +57,20 @@ const getAllVenues_user = async (req, res) => {
 };
 
 
-module.exports = { addVenueTeam, getAllVenues,getAllVenues_user };
+const deleteVenueTeam = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the ID from the request parameters
+    const deletedTeam = await Venue.findByIdAndDelete(id); // Use your model to delete
+
+    if (!deletedTeam) {
+      return res.status(404).json({ message: 'Venue team not found' });
+    }
+
+    res.status(200).json({ message: 'Venue team deleted successfully', team: deletedTeam });
+  } catch (error) {
+    console.error('Error deleting venue team:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = { addVenueTeam, getAllVenues,getAllVenues_user ,deleteVenueTeam};

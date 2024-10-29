@@ -29,6 +29,22 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
               Catering
             </button>
           </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === 'Booking' ? 'active' : ''}`} // New Booking tab
+              onClick={() => setActiveTab('Booking')}
+            >
+              Booking
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === 'Feedback' ? 'active' : ''}`} // New Booking tab
+              onClick={() => setActiveTab('Feedback')}
+            >
+              Feedbacks
+            </button>
+          </li>
         </ul>
       </div>
     </nav>

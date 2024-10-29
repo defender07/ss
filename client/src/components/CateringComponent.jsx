@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { addCateringTeam, getCateringTeams } from '../services/decorationService';
+import { addCateringTeam, deleteCateringTeam, getCateringTeams } from '../services/decorationService';
 
 
 const DecorationComponent = () => {
@@ -16,15 +16,12 @@ const DecorationComponent = () => {
 
   const fetchDecorationTeams = async () => {
     try {
-      const teams = await getCateringTeams();
+      const teams = await getCateringTeams(); // Assuming you meant to fetch decoration teams here
       setDecorationTeams(teams);
     } catch (error) {
       console.error('Error fetching decoration teams:', error);
     }
   };
-
-  console.log("decoration new",selectedTeam?.availableDates);
-  
 
   const handleAddDecoration = async (newDecoration) => {
     try {
@@ -36,32 +33,28 @@ const DecorationComponent = () => {
     }
   };
 
-  
+  const handleDeleteDecoration = async (id) => {
+    try {
+      await deleteCateringTeam(id); // Call the delete function
+      setDecorationTeams(decorationTeams.filter(team => team._id !== id)); // Remove deleted team from state
+    } catch (error) {
+      console.error('Error deleting decoration team:', error);
+    }
+  };
+
   const cleanAvailableDates = (dates) => {
-    // Assuming dates is a JSON string of an array
     const parsedDates = JSON.parse(dates);
-  
-    // Convert date strings to 'YYYY-MM-DD' format
     return parsedDates.map(dateStr => {
       const date = new Date(dateStr);
-      return date.toISOString().split('T')[0]; // Format date to 'YYYY-MM-DD'
+      return date.toISOString().split('T')[0];
     });
   };
 
   const handleSelectTeam = (team) => {
-    console.log("decoration",team);
-
     const cleanedDates = cleanAvailableDates(team.availableDates);
     setSelectedTeam({ ...team, availableDates: cleanedDates });
-    setShowDetails(false); // Reset details view on new selection
-
+    setShowDetails(false);
   };
-
-
-
-
-
-
 
   const toggleDetails = () => {
     setShowDetails(!showDetails);
@@ -79,7 +72,18 @@ const DecorationComponent = () => {
                 onClick={() => handleSelectTeam(team)}
               >
                 {team.name}
-                <button className="btn btn-secondary btn-sm">Check Availability</button>
+                <div>
+                  <button className="btn btn-secondary btn-sm">Check Availability</button>
+                  <button
+                    className="btn btn-danger btn-sm ml-2"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent the onClick of the list item
+                      handleDeleteDecoration(team._id);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -98,7 +102,6 @@ const DecorationComponent = () => {
                   <h4>{selectedTeam.name}</h4>
                   <p><strong>Contact:</strong> {selectedTeam.contact}</p>
                   <p><strong>Budget:</strong> {selectedTeam.budget} /day </p>
-
                   <p><strong>Location:</strong> {selectedTeam.location}</p>
                   <p><strong>Services:</strong> {selectedTeam.services.join(', ')}</p>
                   
@@ -139,7 +142,6 @@ const DecorationComponent = () => {
     </div>
   );
 };
-
 
 
 const AddDecorationForm = ({ onAddDecoration, onCancel }) => {

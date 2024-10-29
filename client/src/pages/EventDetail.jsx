@@ -5,7 +5,7 @@ import { Modal,Button } from 'react-bootstrap';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { format } from 'date-fns';
-import { getCateringTeams_user, getDecorationTeams_user, getVenueTeams_user } from '../services/decorationService';
+import { addFeedback, getCateringTeams_user, getDecorationTeams_user, getFeedbacks, getVenueTeams_user } from '../services/decorationService';
 import { CalendarComponent } from '../components/CalendarComponent';
 import { addToCart, getCartItems } from '../services/cartService';  // Import cart service
 import { useNavigate } from 'react-router-dom';  // Import useNavigate
@@ -56,6 +56,10 @@ const EventDetail = () => {
   const [caterings, setCaterings] = useState([]);
   const [venues, setVenues] = useState([]);
   const [cartItems, setCartItems] = useState([]);  // Cart items state
+
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [newFeedback, setNewFeedback] = useState({ name: '', feedback: '' });
 
 
   const navigate = useNavigate(); 
@@ -258,18 +262,149 @@ const EventDetail = () => {
     );
   };
 
+  useEffect(() => {
+    const fetchInitialFeedbacks = async () => {
+      if (currentTeam) {
+        try {
+          const feedbackData = await getFeedbacks(currentTeam._id); // Fetch feedbacks for the selected team
+          setFeedbacks(feedbackData);
+        } catch (error) {
+          console.error('Error fetching initial feedback:', error);
+        }
+      }
+    };
+  
+    fetchInitialFeedbacks();
+  }, [currentTeam]); // Runs whenever the currentTeam changes
+  
+
+  const handleFeedbackButtonClick = async (team) => {
+    setCurrentTeam(team);
+    try {
+      const feedbackData = await getFeedbacks(team._id); // Fetch feedbacks for the selected team
+      setFeedbacks(feedbackData);
+      
+    } catch (error) {
+      console.error('Error fetching feedback:', error);
+    }
+    setShowFeedbackModal(true);
+  };
+
+  const handleFeedbackSubmit = async () => {
+    try {
+      await addFeedback({eventid:currentTeam._id,organiserid:currentTeam.organizerId, feedback: newFeedback.feedback}); // Add feedback for the current team
+      setFeedbacks([...feedbacks, newFeedback]);
+      setNewFeedback({ name: '', feedback: '' });
+    } catch (error) {
+      console.error('Error adding feedback:', error);
+    }
+  };
+
+  console.log("feedbacks", feedbacks);
+  
+
+  const renderFeedbackModal = () => (
+    <Modal show={showFeedbackModal} onHide={() => setShowFeedbackModal(false)} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Feedback for {currentTeam?.name}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <h6>Existing Feedbacks:</h6>
+        <ul>
+          {feedbacks.map((fb, index) => (
+            <li key={index}>
+              <strong>{fb.name}</strong>: {fb.feedback}
+            </li>
+          ))}
+        </ul>
+        <h6>Add Your Feedback:</h6>
+      
+        <textarea
+          placeholder="Your Feedback"
+          value={newFeedback.feedback}
+          onChange={(e) => setNewFeedback({ ...newFeedback, feedback: e.target.value })}
+          className="form-control mb-2"
+        />
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShowFeedbackModal(false)}>
+          Close
+        </Button>
+        <Button variant="primary" onClick={handleFeedbackSubmit}>
+          Submit Feedback
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
   const renderTeamList = (teamType, teams) => (
     <div className="row">
       {teams.map((team) => (
         <div key={team.id} className="col-md-4 mb-4">
-          <div className="card">
-            <div className="card-body">
-              <h5 className="card-title">{team.name}</h5>
-              <button onClick={() => handleTeamClick(team, teamType)} className="btn btn-primary">
+          <div className="card h-100 border-0 shadow-sm" style={{ borderRadius: '16px', overflow: 'hidden' }}>
+            
+            {/* Header with logo and title */}
+            <div 
+              className="d-flex align-items-center justify-content-start" 
+              style={{
+                backgroundColor: '#f0f2f5',
+                padding: '16px',
+                borderBottom: '1px solid #e0e0e0'
+              }}
+            >
+              <img 
+                src={`http://localhost:5000/${team.logo}`} 
+                alt={team.name} 
+                className="rounded-circle" 
+                style={{ width: '60px', height: '60px', objectFit: 'cover', marginRight: '15px' }}
+              />
+              <h5 className="card-title mb-0">{team.name}</h5>
+            </div>
+  
+            {/* Main content area */}
+            <div className="card-body text-center">
+              <p className="card-text" style={{ color: '#6c757d' }}>
+                {/* {`Specializes in ${team.specialty}. Discover their expertise!`} */}
+                {`Specializes in Events. Discover their expertise!`}
+
+              </p>
+            </div>
+  
+            {/* Footer with buttons */}
+            <div 
+              className="card-footer d-flex flex-wrap justify-content-between align-items-center"
+              style={{
+                backgroundColor: '#f7f8fa',
+                padding: '16px 20px',
+                borderTop: '1px solid #e0e0e0'
+              }}
+            >
+              <button 
+                onClick={() => handleTeamClick(team, teamType)} 
+                className="btn btn-sm btn-primary mx-1 mb-2"
+                style={{ minWidth: '160px' }}
+              >
                 Check Availability
               </button>
-              {/* <button onClick={() => handleAddToCart(team, teamType)} className="btn btn-success ml-2">
-                Add to Cart
+              <button 
+                onClick={() => handleFeedbackButtonClick(team)} 
+                className="btn btn-sm btn-info mx-1 mb-2"
+                style={{ minWidth: '160px' }}
+              >
+                Feedback
+              </button>
+              {/* <button 
+                onClick={() => handlePreviousImagesClick(team)} 
+                className="btn btn-sm btn-secondary mx-1 mb-2"
+                style={{ minWidth: '160px' }}
+              >
+                Previous Images
+              </button>
+              <button 
+                onClick={() => handleServicesProvidedClick(team)} 
+                className="btn btn-sm btn-warning mx-1 mb-2"
+                style={{ minWidth: '160px' }}
+              >
+                Services Provided
               </button> */}
             </div>
           </div>
@@ -277,7 +412,7 @@ const EventDetail = () => {
       ))}
     </div>
   );
-
+  
   return (
     <div className="container mt-4">
      <div className="text-center my-5 p-5" style={{ backgroundImage:  `url(${headerimg})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '10px', color: 'white' }}>
@@ -300,13 +435,13 @@ const EventDetail = () => {
 
       <Tabs>
         <TabList>
-          <Tab>Select Your Event</Tab>
+          {/* <Tab>Select Your Event</Tab> */}
           <Tab>Select Decoration Team</Tab>
           <Tab>Select Catering Team</Tab>
           <Tab>Select Venue Team</Tab>
         </TabList>
 
-        <TabPanel>
+        {/* <TabPanel>
           <div className="mt-4">
             <h4>Select Your Event</h4>
             <div className="d-flex flex-wrap">
@@ -322,7 +457,7 @@ const EventDetail = () => {
 </div>
 
           </div>
-        </TabPanel>
+        </TabPanel> */}
 
         <TabPanel>
           <div className="mt-4">
@@ -347,6 +482,7 @@ const EventDetail = () => {
       </Tabs>
 
       {renderTeamDetailsModal()}
+      {renderFeedbackModal()}
 
       {/* <h2>Your Cart</h2>
       {cartItems.length > 0 ? (

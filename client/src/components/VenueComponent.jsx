@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { addVenueTeam, getVenueTeams } from '../services/decorationService';
+import { addVenueTeam, deleteVenueTeam, getVenueTeams } from '../services/decorationService';
+
 
 
 const VenueComponent = () => {
@@ -23,8 +24,7 @@ const VenueComponent = () => {
     }
   };
 
-  console.log("decoration new",selectedTeam?.availableDates);
-  
+  console.log("decoration new", selectedTeam?.availableDates);
 
   const handleAddDecoration = async (newDecoration) => {
     try {
@@ -36,35 +36,36 @@ const VenueComponent = () => {
     }
   };
 
-  
   const cleanAvailableDates = (dates) => {
-    // Assuming dates is a JSON string of an array
     const parsedDates = JSON.parse(dates);
-  
-    // Convert date strings to 'YYYY-MM-DD' format
     return parsedDates.map(dateStr => {
       const date = new Date(dateStr);
-      return date.toISOString().split('T')[0]; // Format date to 'YYYY-MM-DD'
+      return date.toISOString().split('T')[0];
     });
   };
 
   const handleSelectTeam = (team) => {
-    console.log("decoration",team);
-
+    console.log("decoration", team);
     const cleanedDates = cleanAvailableDates(team.availableDates);
     setSelectedTeam({ ...team, availableDates: cleanedDates });
-    setShowDetails(false); // Reset details view on new selection
-
+    setShowDetails(false);
   };
-
-
-
-
-
-
 
   const toggleDetails = () => {
     setShowDetails(!showDetails);
+  };
+
+  const handleDeleteDecoration = async (teamId) => {
+    try {
+      await deleteVenueTeam(teamId);
+      setDecorationTeams(decorationTeams.filter(team => team._id !== teamId));
+      if (selectedTeam && selectedTeam._id === teamId) {
+        setSelectedTeam(null);
+        setShowDetails(false);
+      }
+    } catch (error) {
+      console.error('Error deleting decoration team:', error);
+    }
   };
 
   return (
@@ -79,7 +80,18 @@ const VenueComponent = () => {
                 onClick={() => handleSelectTeam(team)}
               >
                 {team.name}
-                <button className="btn btn-secondary btn-sm">Check Availability</button>
+                <div>
+                  <button className="btn btn-secondary btn-sm me-2">Check Availability</button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering `handleSelectTeam`
+                      handleDeleteDecoration(team._id);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -97,8 +109,7 @@ const VenueComponent = () => {
                 <div>
                   <h4>{selectedTeam.name}</h4>
                   <p><strong>Contact:</strong> {selectedTeam.contact}</p>
-                  <p><strong>Budget:</strong> {selectedTeam.budget} /day </p>
-
+                  <p><strong>Budget:</strong> {selectedTeam.budget} /day</p>
                   <p><strong>Location:</strong> {selectedTeam.location}</p>
                   <p><strong>Services:</strong> {selectedTeam.services.join(', ')}</p>
                   

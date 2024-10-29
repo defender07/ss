@@ -19,6 +19,7 @@ import EventOrganiserPanel from './pages/EventOrganiserPanel';
 import EventDetail from './pages/EventDetail';
 import Footer from './components/Footer';
 import Booking from './pages/Booking';
+import NotificationsPage from './pages/NotificationsPage';
 
 
 function App() {
@@ -49,6 +50,10 @@ function App() {
       <Route path="/event-organiser" element={<EventOrganiserPanel />} />  
       <Route path="/event_detail" element={<EventDetail />} />
       <Route path="/booking" element={<Booking />} />
+      <Route path="/notifications" element={<NotificationsPage />} />
+      
+
+
 
 
 

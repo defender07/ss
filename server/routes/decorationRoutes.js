@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addDecorationTeam, getAllDecorations, getAllDecorations_user } = require('../controllers/decorationController');
+const { addDecorationTeam, getAllDecorations, getAllDecorations_user, deleteDecorationTeam } = require('../controllers/decorationController');
 const upload = require('../middlewares/uploadMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
@@ -13,7 +13,8 @@ router.post('/add',authMiddleware, upload.fields([
 // Route to get all decoration teams
 router.get('/',authMiddleware, getAllDecorations);
 
-router.get('/user',authMiddleware, getAllDecorations_user);
+router.delete('/:id', authMiddleware, deleteDecorationTeam);
 
+router.get('/user',authMiddleware, getAllDecorations_user);
 
 module.exports = router;

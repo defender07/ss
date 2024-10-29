@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addCateringTeam, getAllCaterings, getAllCaterings_user } = require('../controllers/cateringController');
+const { addCateringTeam, getAllCaterings, getAllCaterings_user, deleteCateringTeam } = require('../controllers/cateringController');
 const upload = require('../middlewares/uploadMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
@@ -15,5 +15,6 @@ router.get('/', authMiddleware,getAllCaterings);
 
 router.get('/user', authMiddleware,getAllCaterings_user);
 
+router.delete('/:id', authMiddleware, deleteCateringTeam); // Define the delete route
 
 module.exports = router;

@@ -4,6 +4,8 @@ import DecorationComponent from '../components/DecorationComponent';
 import VenueComponent from '../components/VenueComponent';
 import CateringComponent from '../components/CateringComponent';
 import Sidebar from '../components/Sidebar';
+import BookingComponent from '../components/BookingComponent';
+import FeedbackOrganiser from '../components/FeedbackOrganiser';
 
 const EventOrganizerPanel = () => {
   const [activeTab, setActiveTab] = useState('Decoration');
@@ -16,6 +18,10 @@ const EventOrganizerPanel = () => {
         return <VenueComponent />;
       case 'Catering':
         return <CateringComponent />;
+      case 'Booking':
+        return <BookingComponent />;
+      case 'Feedback': // New Feedback tab
+        return <FeedbackOrganiser />;
       default:
         return <DecorationComponent />;
     }

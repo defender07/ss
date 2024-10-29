@@ -18,26 +18,32 @@ export const CalendarComponent = ({ selectedTeam, onDateSelect }) => {
   // Function to check if a date is available
   const isDateAvailable = (date) => {
     const formattedDate = formatDateToLocal(date);
-    // console.log("Formatted Date (Local):", formattedDate);
-    
     return availableDates.includes(formattedDate);
+  };
+
+  // Function to check if a date is in the past
+  const isDateExpired = (date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Ignore the time portion
+    return date < today; // Check if the date is before today
   };
 
   // Function to adjust the date to remove any time zone shift
   const adjustToLocalDate = (date) => {
-    // Create a new date object to remove the time zone offset
     const adjustedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     return adjustedDate;
   };
 
   // Handle date selection
   const handleDateChange = (date) => {
-    const adjustedDate = adjustToLocalDate(date); // Ensure date is treated as local date
+    const adjustedDate = adjustToLocalDate(date);
     console.log("Selected Date (Adjusted):", adjustedDate);
 
-    if (isDateAvailable(adjustedDate)) {
+    if (isDateExpired(adjustedDate)) {
+      alert("This date has expired.");
+    } else if (isDateAvailable(adjustedDate)) {
       if (onDateSelect) {
-        onDateSelect(adjustedDate); // Call onDateSelect only if it's defined
+        onDateSelect(adjustedDate);
       } else {
         console.error("onDateSelect function is not passed!");
       }
@@ -49,13 +55,23 @@ export const CalendarComponent = ({ selectedTeam, onDateSelect }) => {
   return (
     <div>
       <Calendar
-        tileClassName={({ date }) => (isDateAvailable(date) ? "available-date" : null)}
-        onClickDay={handleDateChange} // Call the handler on day click
+        tileClassName={({ date }) => {
+          if (isDateExpired(date)) {
+            return "expired-date";
+          }
+          return isDateAvailable(date) ? "available-date" : null;
+        }}
+        onClickDay={handleDateChange}
       />
       <style jsx>{`
         .available-date {
           background-color: #00B98E;
           color: white;
+        }
+        .expired-date {
+          background-color: #FF6666;
+          color: white;
+          pointer-events: none; /* Prevent clicking on expired dates */
         }
       `}</style>
     </div>

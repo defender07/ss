@@ -56,4 +56,21 @@ const getAllCaterings_user = async (req, res) => {
   }
 };
 
-module.exports = { addCateringTeam, getAllCaterings,getAllCaterings_user };
+// Function to delete a catering team by ID
+const deleteCateringTeam = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the ID from the request parameters
+    const deletedTeam = await Catering.findByIdAndDelete(id); // Use your model to delete
+
+    if (!deletedTeam) {
+      return res.status(404).json({ message: 'Catering team not found' });
+    }
+
+    res.status(200).json({ message: 'Catering team deleted successfully', team: deletedTeam });
+  } catch (error) {
+    console.error('Error deleting catering team:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = { addCateringTeam, getAllCaterings,getAllCaterings_user,deleteCateringTeam };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Analytics from '../components/Analytics';
 
 const AdminPanel = () => {
   const [organisers, setOrganisers] = useState([]);
@@ -17,7 +18,6 @@ const AdminPanel = () => {
   }, [navigate]);
 
   useEffect(() => {
-    // Fetch all organizers (both verified and unverified) on component mount
     const fetchOrganisers = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/admin/organisers', {
@@ -38,7 +38,6 @@ const AdminPanel = () => {
       });
       setSuccess(`Organiser ${isVerified ? 'unverified' : 'verified'} successfully`);
       
-      // Update the organizer's status in the local state
       setOrganisers(organisers.map(org => 
         org._id === id ? { ...org, isVerified: !org.isVerified } : org
       ));
@@ -52,6 +51,10 @@ const AdminPanel = () => {
       <h2 className="text-center">Admin Panel</h2>
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
+      
+      {/* Business Analytics Section */}
+      <Analytics organisers={organisers} />
+      
       <table className="table table-striped">
         <thead>
           <tr>

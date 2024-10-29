@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addVenueTeam, getAllVenues, getAllVenues_user } = require('../controllers/venueController');
+const { addVenueTeam, getAllVenues, getAllVenues_user, deleteVenueTeam } = require('../controllers/venueController');
 const upload = require('../middlewares/uploadMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
@@ -12,6 +12,9 @@ router.post('/add',authMiddleware, upload.fields([
 
 // Route to get all venue teams
 router.get('/',authMiddleware, getAllVenues);
+
+// Route to delete a venue team by ID
+router.delete('/:id', authMiddleware, deleteVenueTeam); // Define the delete route
 
 router.get('/user',authMiddleware, getAllVenues_user);
 
