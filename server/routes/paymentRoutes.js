@@ -46,7 +46,7 @@ router.post('/create-order', async (req, res) => {
 router.post('/verify-payment', authMiddleware, async (req, res) => {
   const { order_id, payment_id, signature, bookingDetails } = req.body;
 
-  console.log("bookingDetails", req.body);
+  console.log("Booking Details:", req.body);
 
   // Step 1: Verify the Razorpay signature
   const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
@@ -77,59 +77,33 @@ router.post('/verify-payment', authMiddleware, async (req, res) => {
 
     await newBooking.save(); // Save booking to the database
 
-    // // Step 3: Identify the correct event model based on eventType
-    // let eventModel;
-    // if (bookingDetails.eventType === 'catering') {
-    //   eventModel = Catering;
-    // } else if (bookingDetails.eventType === 'decoration') {
-    //   eventModel = Decoration;
-    // } else if (bookingDetails.eventType === 'venue') {
-    //   eventModel = Venue;
-    // } else {
-    //   return res.status(400).json({ message: 'Invalid event type' });
-    // }
+    // Step 3: Identify the correct event model based on eventType
+    let eventModel;
+    if (bookingDetails.eventType === 'catering') {
+      eventModel = Catering;
+    } else if (bookingDetails.eventType === 'decoration') {
+      eventModel = Decoration;
+    } else if (bookingDetails.eventType === 'venue') {
+      eventModel = Venue;
+    } else {
+      return res.status(400).json({ message: 'Invalid event type' });
+    }
 
-    // // Step 4: Format the dates (both booked and available dates) to 'YYYY-MM-DD'
-    // const bookedDatesFormatted = bookingDetails.dates.map(date => new Date(date).toISOString().split('T')[0]);
+    // Step 4: Remove booked dates from availableDates
+    const bookedDates = bookingDetails.dates; // Already in 'YYYY-MM-DD' format
 
-    
-    
-    // const event = await eventModel.findById(bookingDetails.eventId);
-    
-    // if (!event) {
-    //   return res.status(404).json({ message: 'Event not found or already booked' });
-    // }
-    
-    // const availableDatesFormatted = event.availableDates.map(dateString => {
-    //   try {
-    //     // Remove any extra quotes and convert to Date object
-    //     const parsedDate = new Date(dateString.replace(/["]/g, ''));
-    //     // If the date is invalid, return null
-    //     if (isNaN(parsedDate.getTime())) {
-    //       return null;
-    //     }
-    //     // Return the formatted date in 'YYYY-MM-DD' format
-    //     return parsedDate.toISOString().split('T')[0];
-    //   } catch (err) {
-    //     // If there's any error in parsing, log it and return null
-    //     console.error('Error parsing date:', dateString, err);
-    //     return null;
-    //   }
-    // }).filter(date => date !== null);  // Remove null values
+    // Check if the event exists
+    const event = await eventModel.findById(bookingDetails.eventId);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found or already booked' });
+    }
 
+    // Filter out the booked dates from availableDates
+    event.availableDates = event.availableDates.filter(date => !bookedDates.includes(date));
 
-    //   // Remove booked dates from available dates
-    //   const updatedAvailableDates = availableDatesFormatted.filter(date => !bookedDatesFormatted.includes(date));
+    await event.save();
 
-    //   // Update the event with new available dates
-    //   event.availableDates = updatedAvailableDates;
-    //   await event.save();
-
-    // console.log({"avialable dates formatted": availableDatesFormatted, "booked dates": bookedDatesFormatted});
-
-    // console.log("Booking and date removal successful:", newBooking);
-
-
+    console.log("Booking and date removal successful:", newBooking);
 
     res.status(200).json({ success: true, message: 'Payment verified, booking saved, and available dates updated.' });
 

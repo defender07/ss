@@ -43,19 +43,19 @@ const DecorationComponent = () => {
   };
 
   const cleanAvailableDates = (dates) => {
-    const parsedDates = JSON.parse(dates);
-    return parsedDates.map(dateStr => {
+    return dates.map(dateStr => {
       const date = new Date(dateStr);
       return date.toISOString().split('T')[0];
     });
   };
-
+  
   const handleSelectTeam = (team) => {
     const cleanedDates = cleanAvailableDates(team.availableDates);
+    console.log("cleanedDates in organiser", cleanedDates);
+    
     setSelectedTeam({ ...team, availableDates: cleanedDates });
-    setShowDetails(false);
+    setShowDetails(false); // Reset details view on new selection
   };
-
   const toggleDetails = () => {
     setShowDetails(!showDetails);
   };
@@ -169,13 +169,23 @@ const AddDecorationForm = ({ onAddDecoration, onCancel }) => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const formattedDates = availableDates.map(dateString => {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    });
+  
+
     const formData = new FormData();
     formData.append('name', name);
     formData.append('contact', contact);
     formData.append('budget', budget);
     formData.append('location', location);
     formData.append('services', services.split(',').map(service => service.trim()).join(','));
-    formData.append('availableDates', JSON.stringify(availableDates));
+    formattedDates.forEach(date => formData.append('availableDates[]', date));
     formData.append('logo', logo); // Append the logo file
     images.forEach(image => formData.append('images', image)); // Append each image file
 
@@ -319,29 +329,36 @@ const CalendarComponent = ({ selectedTeam }) => {
   // Extract available dates and ensure they are in 'YYYY-MM-DD' format
   const availableDates = selectedTeam?.availableDates || [];
 
-
-  
-
+  // Format dates as 'YYYY-MM-DD' using UTC to prevent any timezone shifts
+  const formattedDates = availableDates.map(dateString => {
+    const date = new Date(Date.UTC(
+      new Date(dateString).getFullYear(),
+      new Date(dateString).getMonth(),
+      new Date(dateString).getDate()
+    ));
+    return date.toISOString().split('T')[0];
+  });
 
   // Function to check if a date is available
   const isDateAvailable = (date) => {
-    // Format date to 'YYYY-MM-DD'
-    const formattedDate = date.toISOString().split('T')[0];
-    return availableDates.includes(formattedDate);
+    // Format the date in 'YYYY-MM-DD' format in UTC
+    const formattedDate = new Date(Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    )).toISOString().split('T')[0];
+    return formattedDates.includes(formattedDate);
   };
-
-  console.log("Available Dates:", availableDates); // For debugging
 
   return (
     <div>
       <Calendar
         tileClassName={({ date }) => isDateAvailable(date) ? 'available-date' : null}
-        // You can add additional props to the Calendar component here if needed
       />
       <style jsx>{`
         .available-date {
           background: #00B98E; /* Your desired color */
-          color: white;
+          color: white; 
         }
       `}</style>
     </div>

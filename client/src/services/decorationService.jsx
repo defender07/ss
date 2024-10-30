@@ -139,7 +139,7 @@ export const deleteVenueTeam = async (id) => {
 
 // New: Feedback-related requests
 export const getFeedbacks = async (eventid) => {
-  const response = await axios.get(`${API_URL}/feedbacks/${eventid}`, {
+  const response = await axios.get(`${API_URL}/feedback/${eventid}`, {
     headers: {
       'Content-Type': 'application/json',
       'x-auth-token': getToken(),
@@ -150,7 +150,7 @@ export const getFeedbacks = async (eventid) => {
 };
 
 export const addFeedback = async (feedback) => {
-  const response = await axios.post(`${API_URL}/feedbacks/add`, { feedback }, {
+  const response = await axios.post(`${API_URL}/feedback/add`, { feedback }, {
     headers: {
       'Content-Type': 'application/json',
       'x-auth-token': getToken(),

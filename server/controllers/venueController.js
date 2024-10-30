@@ -14,7 +14,7 @@ const addVenueTeam = async (req, res) => {
       location,
       contact,
       budget,
-      availableDates: availableDates.split(','), // Assuming dates are sent as a comma-separated string
+      availableDates, // Assuming dates are sent as a comma-separated string
       logo: req.files['logo'] ? req.files['logo'][0].path : '', // Store the path of the logo image
       images: req.files['images'] ? req.files['images'].map(file => file.path) : [], // Store the paths of uploaded images
       organizerId

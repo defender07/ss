@@ -2,15 +2,9 @@ const Decoration = require('../models/decorationModel');
 
 // Add Decoration Team
 const addDecorationTeam = async (req, res) => {
-  const { name, services,contact, location, availableDates, budget } = req.body;
+  const { name, services, contact, location, availableDates, budget } = req.body;
 
   const organizerId = req.user.userId; // Get the organizer ID from the logged-in user
-
-  // console.log("add dec",req.user);
-  
-
-  console.log(req.files);
-  
 
   try {
     const newDecoration = new Decoration({
@@ -19,7 +13,7 @@ const addDecorationTeam = async (req, res) => {
       contact,
       budget,
       location,
-      availableDates: availableDates.split(','), // Assuming dates are sent as a comma-separated string
+      availableDates, // No need to split; availableDates is already an array
       logo: req.files['logo'] ? req.files['logo'][0].path : '', // Store the path of the logo image
       images: req.files['images'] ? req.files['images'].map(file => file.path) : [], // Store the paths of uploaded images
       organizerId

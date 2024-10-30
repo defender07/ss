@@ -72,10 +72,9 @@ const EventDetail = () => {
   // Fetching teams and converting dates
   useEffect(() => {
     const cleanAvailableDates = (dates) => {
-      const parsedDates = JSON.parse(dates);
-      return parsedDates.map(dateStr => {
+      return dates.map(dateStr => {
         const date = new Date(dateStr);
-        return date.toISOString().split('T')[0]; // Format date to 'YYYY-MM-DD'
+        return date.toISOString().split('T')[0];
       });
     };
 
