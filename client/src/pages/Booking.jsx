@@ -1,9 +1,11 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Booking = () => {
   const location = useLocation();
+  const navigate = useNavigate(); // For navigating to other pages
   const { team, dates, totalBudget, eventType } = location.state;
+  const [isPaymentComplete, setIsPaymentComplete] = useState(false); // Track payment completion
 
   const handlePayment = async () => {
     // Create order on the backend
@@ -17,9 +19,9 @@ const Booking = () => {
         currency: 'INR',
       }),
     });
-  
+
     const order = await orderResponse.json();
-  
+
     // Initialize Razorpay checkout with order details
     const options = {
       key: 'rzp_test_AQjlQQp7RxrHDu', // Replace with your Test Key ID
@@ -41,7 +43,7 @@ const Booking = () => {
             payment_id: response.razorpay_payment_id,
             signature: response.razorpay_signature,
             bookingDetails: {
-              team: team.name, // Send team name (or team ID if needed)
+              team: team.name,
               userId: team._id,
               eventId: team._id,
               organiserId: team.organizerId,
@@ -50,12 +52,12 @@ const Booking = () => {
               eventType: eventType
             },
           }),
-        }
-      );
-  
+        });
+
         const verificationResponse = await verifyPayment.json();
         if (verificationResponse.success) {
           alert('Payment verified successfully!');
+          setIsPaymentComplete(true); // Set payment as complete
           console.log(response);
         } else {
           alert('Payment verification failed!');
@@ -70,11 +72,20 @@ const Booking = () => {
         color: '#00B98E',
       },
     };
-  
+
     const rzp = new window.Razorpay(options);
     rzp.open();
   };
-  
+
+  const handleDisabledClick = () => {
+    if (isPaymentComplete) {
+      alert('Payment has already been completed. You cannot make another payment.');
+    }
+  };
+
+  const handleBackToHome = () => {
+    navigate('/'); // Navigate to the Home page
+  };
 
   return (
     <div className="container mt-5">
@@ -99,8 +110,18 @@ const Booking = () => {
               <p><strong>Total Budget:</strong> ₹{totalBudget}</p>
             </div>
             <h3>Payment</h3>
-            <button onClick={handlePayment} className="btn btn-success btn-lg">
-              Pay Now
+            <button
+              onClick={isPaymentComplete ? handleDisabledClick : handlePayment}
+              className={`btn btn-lg ${isPaymentComplete ? 'btn-danger' : 'btn-success'}`} // Change to red if payment is complete
+              disabled={isPaymentComplete} // Disable button after payment
+            >
+              {isPaymentComplete ? 'Payment Completed' : 'Pay Now'}
+            </button>
+            <button
+              onClick={handleBackToHome}
+              className="btn btn-primary btn-lg mt-3"
+            >
+              Back to Home
             </button>
           </div>
         </div>

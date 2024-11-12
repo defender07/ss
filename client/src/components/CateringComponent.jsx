@@ -3,7 +3,6 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { addCateringTeam, deleteCateringTeam, getCateringTeams } from '../services/decorationService';
 
-
 const DecorationComponent = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [decorationTeams, setDecorationTeams] = useState([]);
@@ -16,7 +15,7 @@ const DecorationComponent = () => {
 
   const fetchDecorationTeams = async () => {
     try {
-      const teams = await getCateringTeams(); // Assuming you meant to fetch decoration teams here
+      const teams = await getCateringTeams();
       setDecorationTeams(teams);
     } catch (error) {
       console.error('Error fetching decoration teams:', error);
@@ -35,8 +34,8 @@ const DecorationComponent = () => {
 
   const handleDeleteDecoration = async (id) => {
     try {
-      await deleteCateringTeam(id); // Call the delete function
-      setDecorationTeams(decorationTeams.filter(team => team._id !== id)); // Remove deleted team from state
+      await deleteCateringTeam(id);
+      setDecorationTeams(decorationTeams.filter(team => team._id !== id));
     } catch (error) {
       console.error('Error deleting decoration team:', error);
     }
@@ -48,14 +47,13 @@ const DecorationComponent = () => {
       return date.toISOString().split('T')[0];
     });
   };
-  
+
   const handleSelectTeam = (team) => {
     const cleanedDates = cleanAvailableDates(team.availableDates);
-    console.log("cleanedDates in organiser", cleanedDates);
-    
     setSelectedTeam({ ...team, availableDates: cleanedDates });
-    setShowDetails(false); // Reset details view on new selection
+    setShowDetails(false);
   };
+
   const toggleDetails = () => {
     setShowDetails(!showDetails);
   };
@@ -77,7 +75,7 @@ const DecorationComponent = () => {
                   <button
                     className="btn btn-danger btn-sm ml-2"
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent the onClick of the list item
+                      e.stopPropagation();
                       handleDeleteDecoration(team._id);
                     }}
                   >
@@ -92,19 +90,19 @@ const DecorationComponent = () => {
           {!showAddForm ? (
             <div>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <h3>Catering Teams</h3>
+                <h3>Decoration Teams</h3>
                 <button className="btn btn-primary" onClick={() => setShowAddForm(true)}>
-                  Add Catering Team
+                  Add Decoration Team
                 </button>
               </div>
               {selectedTeam && (
                 <div>
                   <h4>{selectedTeam.name}</h4>
                   <p><strong>Contact:</strong> {selectedTeam.contact}</p>
-                  <p><strong>Budget:</strong> {selectedTeam.budget} /day </p>
+                  <p><strong>Budget:</strong> {selectedTeam.budget} /day</p>
                   <p><strong>Location:</strong> {selectedTeam.location}</p>
                   <p><strong>Services:</strong> {selectedTeam.services.join(', ')}</p>
-                  
+
                   <button className="btn btn-info" onClick={toggleDetails}>
                     {showDetails ? 'Hide Details' : 'Show Details'}
                   </button>
@@ -143,7 +141,6 @@ const DecorationComponent = () => {
   );
 };
 
-
 const AddDecorationForm = ({ onAddDecoration, onCancel }) => {
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
@@ -152,32 +149,27 @@ const AddDecorationForm = ({ onAddDecoration, onCancel }) => {
   const [location, setLocation] = useState('');
   const [images, setImages] = useState([]);
   const [logo, setLogo] = useState(null);
-  const [budget, setbudget] = useState('')
+  const [budget, setBudget] = useState('');
 
-
-  console.log("decoImages: ", images);
-  
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    setImages(files); // Store file objects
+    setImages(files);
   };
 
-  // Handle logo file selection
   const handleLogoUpload = (e) => {
-    setLogo(e.target.files[0]); // Store file object
+    setLogo(e.target.files[0]);
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formattedDates = availableDates.map(dateString => {
       const date = new Date(dateString);
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+      const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     });
-  
 
     const formData = new FormData();
     formData.append('name', name);
@@ -186,8 +178,8 @@ const AddDecorationForm = ({ onAddDecoration, onCancel }) => {
     formData.append('location', location);
     formData.append('services', services.split(',').map(service => service.trim()).join(','));
     formattedDates.forEach(date => formData.append('availableDates[]', date));
-    formData.append('logo', logo); // Append the logo file
-    images.forEach(image => formData.append('images', image)); // Append each image file
+    formData.append('logo', logo);
+    images.forEach(image => formData.append('images', image));
 
     try {
       await onAddDecoration(formData);
@@ -198,7 +190,7 @@ const AddDecorationForm = ({ onAddDecoration, onCancel }) => {
 
   return (
     <div>
-      <h3>Add Catering Team</h3>
+      <h3>Add Decoration Team</h3>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label htmlFor="name" className="form-label">Team Name</label>
@@ -212,9 +204,9 @@ const AddDecorationForm = ({ onAddDecoration, onCancel }) => {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="contact" className="form-label">Contact</label>
+          <label htmlFor="contact" className="form-label">Contact Number</label>
           <input
-            type="text"
+            type="tel"
             className="form-control"
             id="contact"
             value={contact}
@@ -251,9 +243,9 @@ const AddDecorationForm = ({ onAddDecoration, onCancel }) => {
             type="number"
             className="form-control"
             id="budget"
-            placeholder='per day'
+            placeholder="per day"
             value={budget}
-            onChange={(e) => setbudget(e.target.value)}
+            onChange={(e) => setBudget(e.target.value)}
             required
           />
         </div>
@@ -268,100 +260,39 @@ const AddDecorationForm = ({ onAddDecoration, onCancel }) => {
                   : [...availableDates, newDate]
               );
             }}
+            tileDisabled={({ date }) => date < new Date().setHours(0, 0, 0, 0)} // Ensures past dates are disabled
             tileClassName={({ date }) =>
-              availableDates.includes(new Date(date).toDateString())
-                ? 'available-date'
-                : null
+              availableDates.includes(new Date(date).toDateString()) ? 'available-date' : null
             }
+            minDate={new Date()} // Blocks past date selections
           />
-          <div className="mt-2">
-            <h6>Selected Dates:</h6>
-            <ul>
-              {availableDates.map((date, index) => (
-                <li key={index}>{date}</li>
-              ))}
-            </ul>
-          </div>
         </div>
         <div className="mb-3">
-          <label htmlFor="images" className="form-label">Upload Images</label>
-          <input
-            type="file"
-            className="form-control"
-            id="images"
-            multiple
-            accept="image/*"
-            onChange={handleImageUpload}
-          />
-          <div className="mt-2">
-            <h6>Selected Images:</h6>
-            <div className="d-flex">
-              {images.map((image, index) => (
-                <img key={index} src={`/uploads/${image}`} alt={`Upload Preview ${index + 1}`} style={{ width: '100px', marginRight: '10px' }} />
-              ))}
-            </div>
-          </div>
+          <label htmlFor="logo" className="form-label">Team Logo</label>
+          <input type="file" className="form-control" id="logo" onChange={handleLogoUpload} />
         </div>
         <div className="mb-3">
-          <label htmlFor="logo" className="form-label">Upload Logo</label>
-          <input
-            type="file"
-            className="form-control"
-            id="logo"
-            accept="image/*"
-            onChange={handleLogoUpload}
-          />
-          {logo && (
-            <div className="mt-2">
-              <h6>Selected Logo:</h6>
-              <img src={`/uploads/${logo}`} alt="Upload Preview" style={{ width: '150px' }} />
-            </div>
-          )}
+          <label htmlFor="images" className="form-label">Team Images</label>
+          <input type="file" multiple className="form-control" id="images" onChange={handleImageUpload} />
         </div>
-        <button type="submit" className="btn btn-primary">Add Catering Team</button>
-        <button type="button" className="btn btn-secondary ms-2" onClick={onCancel}>Cancel</button>
+        <button type="submit" className="btn btn-primary">Add Decoration Team</button>
+        <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancel</button>
       </form>
     </div>
   );
 };
 
 const CalendarComponent = ({ selectedTeam }) => {
-  // Extract available dates and ensure they are in 'YYYY-MM-DD' format
-  const availableDates = selectedTeam?.availableDates || [];
-
-  // Format dates as 'YYYY-MM-DD' using UTC to prevent any timezone shifts
-  const formattedDates = availableDates.map(dateString => {
-    const date = new Date(Date.UTC(
-      new Date(dateString).getFullYear(),
-      new Date(dateString).getMonth(),
-      new Date(dateString).getDate()
-    ));
-    return date.toISOString().split('T')[0];
-  });
-
-  // Function to check if a date is available
-  const isDateAvailable = (date) => {
-    // Format the date in 'YYYY-MM-DD' format in UTC
-    const formattedDate = new Date(Date.UTC(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate()
-    )).toISOString().split('T')[0];
-    return formattedDates.includes(formattedDate);
-  };
+  const availableDates = selectedTeam.availableDates;
 
   return (
-    <div>
-      <Calendar
-        tileClassName={({ date }) => isDateAvailable(date) ? 'available-date' : null}
-      />
-      <style jsx>{`
-        .available-date {
-          background: #00B98E; /* Your desired color */
-          color: white; 
-        }
-      `}</style>
-    </div>
+    <Calendar
+      tileClassName={({ date }) =>
+        availableDates.includes(new Date(date).toISOString().split('T')[0]) ? 'highlight-date' : null
+      }
+      tileDisabled={({ date }) => date < new Date().setHours(0, 0, 0, 0)} // Ensures past dates are disabled
+      minDate={new Date()} // Blocks past date selections
+    />
   );
 };
 

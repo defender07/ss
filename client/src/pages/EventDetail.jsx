@@ -354,7 +354,7 @@ const EventDetail = () => {
                 src={`http://localhost:5000/${team.logo}`} 
                 alt={team.name} 
                 className="rounded-circle" 
-                style={{ width: '60px', height: '60px', objectFit: 'cover', marginRight: '15px' }}
+                style={{ width: '400px', height: '300px', objectFit: 'cover', marginRight: '100px' }}
               />
               <h5 className="card-title mb-0">{team.name}</h5>
             </div>

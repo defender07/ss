@@ -224,7 +224,7 @@ const AddDecorationForm = ({ onAddDecoration, onCancel }) => {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="contact" className="form-label">Contact</label>
+          <label htmlFor="contact" className="form-label">Contact Number</label>
           <input
             type="text"
             className="form-control"
@@ -369,7 +369,7 @@ const CalendarComponent = ({ selectedTeam }) => {
       <style jsx>{`
         .available-date {
           background: #00B98E; /* Your desired color */
-          color: white; 
+          color: black; 
         }
       `}</style>
     </div>

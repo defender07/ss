@@ -20,6 +20,10 @@ import EventDetail from './pages/EventDetail';
 import Footer from './components/Footer';
 import Booking from './pages/Booking';
 import NotificationsPage from './pages/NotificationsPage';
+import AboutPage from './pages/Aboutus';
+import ConcertGallery from './pages/Concert';
+import WeddingStageGallery from './pages/Wed';
+import AnniversaryGallery from './pages/Ann';
 
 
 function App() {
@@ -37,7 +41,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/services" element={<ServicesPage />} />
-      <Route path="/about" element={<h1>About Us</h1>} />
+      <Route path="/abt" element={<AboutPage />} />
       <Route path="/admin" element={<AdminPage/>} />
       <Route path="/contact" element={<h1>Contact Us</h1>} />
       <Route path="/order_cmpt" element={<OrderCompletePage/>} />
@@ -51,8 +55,9 @@ function App() {
       <Route path="/event_detail" element={<EventDetail />} />
       <Route path="/booking" element={<Booking />} />
       <Route path="/notifications" element={<NotificationsPage />} />
-      
-
+      <Route path="/concert-gallery" element={<ConcertGallery />} />
+      <Route path="/wedding-gallery" element={<WeddingStageGallery />} />
+      <Route path="/anniversary-gallery" element={<AnniversaryGallery />} />
 
 
 

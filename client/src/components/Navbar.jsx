@@ -7,6 +7,7 @@ import img from '../assets/logo.png';
 function Navbar() {
   const navigate = useNavigate();
   const [notificationsCount, setNotificationsCount] = useState(0);
+  const [activeButton, setActiveButton] = useState('');
 
   useEffect(() => {
     fetchNotificationsCount();
@@ -20,7 +21,7 @@ function Navbar() {
       const response = await axios.get('http://localhost:5000/api/notifications/count', {
         headers: { 'x-auth-token': token },
       });
-      setNotificationsCount(response.data.count); // Set count from API response
+      setNotificationsCount(response.data.count);
     } catch (error) {
       console.error('Failed to fetch notifications count:', error);
     }
@@ -31,57 +32,97 @@ function Navbar() {
     navigate('/');
   };
 
-  const isLoggedIn = !!localStorage.getItem('token');
+  const handleButtonClick = (buttonName) => {
+    setActiveButton(buttonName);
+  };
 
   return (
     <nav className="navbar navbar-expand-lg" style={{ backgroundColor: '#FFFFFF' }}>
-      <div className="container-fluid d-flex justify-content-between">
-        <ul className="navbar-nav">
-          <li className="nav-item">
-            <Link className="nav-link" to="/" style={{ color: '#005F3B', fontSize: '20px' }}>
-              Home
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/about" style={{ color: '#005F3B', fontSize: '20px' }}>
-              About us
-            </Link>
-          </li>
-        </ul>
-
-        <div className="text-center">
-          <Link className="navbar-brand" to="/" style={{ fontWeight: 'bold', fontSize: '24px', color: '#000' }}>
+      <div className="container-fluid">
+        {/* Left side with 3D style title and logo */}
+        <div className="d-flex align-items-center">
+          <Link
+            className="navbar-brand"
+            to="/"
+            style={{
+              fontWeight: 'bold',
+              fontSize: '32px',
+              color: '#000',
+              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3), 0px 2px 8px rgba(0, 0, 0, 0.15)', // 3D effect
+            }}
+          >
             Event Weddora
           </Link>
-          <img src={img} alt="Event Weddora" style={{ height: '50px', marginTop: '5px' }} />
+          <img src={img} alt="Event Weddora" style={{ height: '50px', marginLeft: '10px' }} />
         </div>
 
-        <ul className="navbar-nav">
-          <li className="nav-item">
-            <Link className="nav-link" to="/notifications" style={{ color: '#005F3B', fontSize: '20px' }}>
-              <FaBell /> Notifications
-              {notificationsCount > 0 && (
-                <span className="badge bg-danger" style={{ marginLeft: '5px' }}>{notificationsCount}</span>
-              )}
-            </Link>
-          </li>
-          {isLoggedIn ? (
+        {/* Right side with navigation buttons */}
+        <div className="collapse navbar-collapse justify-content-end">
+          <ul className="navbar-nav">
             <li className="nav-item">
-              <button className="btn btn-link nav-link" onClick={handleLogout} style={{ color: '#005F3B', fontSize: '20px' }}>
-                Logout
+              <button
+                className={`btn btn-link nav-link ${activeButton === 'home' ? 'text-primary' : 'text-dark'}`}
+                onClick={() => { handleButtonClick('home'); navigate('/'); }}
+                style={{ fontSize: '20px', textDecoration: activeButton === 'home' ? 'underline' : 'none' }}
+              >
+                Home
               </button>
             </li>
-          ) : (
-            <>
+            <li className="nav-item">
+              <button
+                className={`btn btn-link nav-link ${activeButton === 'about' ? 'text-primary' : 'text-dark'}`}
+                onClick={() => { handleButtonClick('about'); navigate('/abt'); }}
+                style={{ fontSize: '20px', textDecoration: activeButton === 'about' ? 'underline' : 'none' }}
+              >
+                About us
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`btn btn-link nav-link ${activeButton === 'notifications' ? 'text-primary' : 'text-dark'}`}
+                onClick={() => { handleButtonClick('notifications'); navigate('/notifications'); }}
+                style={{ fontSize: '20px', textDecoration: activeButton === 'notifications' ? 'underline' : 'none' }}
+              >
+                <FaBell /> Notifications
+                {notificationsCount > 0 && (
+                  <span className="badge bg-danger ms-2">{notificationsCount}</span>
+                )}
+              </button>
+            </li>
+            {localStorage.getItem('token') ? (
               <li className="nav-item">
-                <Link className="nav-link" to="/login" style={{ color: '#005F3B', fontSize: '20px' }}>Login</Link>
+                <button
+                  className={`btn btn-link nav-link ${activeButton === 'logout' ? 'text-primary' : 'text-dark'}`}
+                  onClick={() => { handleButtonClick('logout'); handleLogout(); }}
+                  style={{ fontSize: '20px', textDecoration: activeButton === 'logout' ? 'underline' : 'none' }}
+                >
+                  Logout
+                </button>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/register" style={{ color: '#005F3B', fontSize: '20px' }}>Register</Link>
-              </li>
-            </>
-          )}
-        </ul>
+            ) : (
+              <>
+                <li className="nav-item">
+                  <button
+                    className={`btn btn-link nav-link ${activeButton === 'login' ? 'text-primary' : 'text-dark'}`}
+                    onClick={() => { handleButtonClick('login'); navigate('/login'); }}
+                    style={{ fontSize: '20px', textDecoration: activeButton === 'login' ? 'underline' : 'none' }}
+                  >
+                    Login
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className={`btn btn-link nav-link ${activeButton === 'register' ? 'text-primary' : 'text-dark'}`}
+                    onClick={() => { handleButtonClick('register'); navigate('/register'); }}
+                    style={{ fontSize: '20px', textDecoration: activeButton === 'register' ? 'underline' : 'none' }}
+                  >
+                    Register
+                  </button>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
       </div>
     </nav>
   );
